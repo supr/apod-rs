@@ -20,14 +20,14 @@ struct MemoryPage
     body: Vec<u8> 
 }
 
-struct Apod<'a> {
+struct Apod {
     handle: RefCell<http::Handle>
 }
 
 
-impl<'a> Apod<'a> {
+impl Apod {
 
-    fn new() -> Apod<'a> {
+    fn new() -> Apod {
         Apod { handle: RefCell::new(http::handle().verbose()) }
     }
 

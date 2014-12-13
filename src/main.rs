@@ -10,6 +10,7 @@ use std::str;
 use std::string::String;
 use std::io::{Command, File};
 use std::os;
+use std::cell::RefCell;
 
 static APOD_BASE_URL: &'static str = "http://apod.nasa.gov/apod/";
 
@@ -20,29 +21,32 @@ struct MemoryPage
     body: Vec<u8> 
 }
 
-enum Matched<'a> {
-    Yes(&'a str),
-    No
+struct Apod<'a> {
+    handle: RefCell<http::Handle>
 }
 
-struct Apod;
 
-impl Apod {
+impl<'a> Apod<'a> {
+
+    fn new() -> Apod<'a> {
+        Apod { handle: RefCell::new(http::handle().verbose()) }
+    }
+
     fn get_page(&self, url: &str) -> MemoryPage {
-        let resp = http::handle().get(url)
+        let resp = self.handle.borrow_mut().get(url)
                     .header("User-Agent", "apod-rs/0.1 github.com/supr/apod-rs")
                     .exec().unwrap();
         MemoryPage { code: resp.get_code(), headers: resp.get_headers().clone(), body: resp.move_body() }
     }
 
-    fn get_image_url(&self, page: &MemoryPage) -> Matched {
+    fn get_image_url<'a>(&self, page: &MemoryPage) -> Option<&'a str> {
         let rex = regex!("<a href=\"(image.*)\"");
         let body = str::from_utf8(page.body.as_slice()).unwrap();
         match rex.is_match(body) {
             true => {
-                Matched::Yes(rex.captures(body).unwrap().at(1))
+                Some(rex.captures(body).unwrap().at(1))
             },
-            false => Matched::No
+            false => None
         }
     }
 
@@ -65,12 +69,11 @@ impl Apod {
 }
 
 fn main() {
-    let apod = Apod;
+    let apod = Apod::new();
     let page = apod.get_page(APOD_BASE_URL);
 
-    if let Matched::Yes(url) = apod.get_image_url(&page) {
+    if let Some(url) = apod.get_image_url(&page) {
         let downloaded_file = apod.download_page(format!("{}/Pictures", os::homedir().unwrap().display()), format!("{}{}", APOD_BASE_URL, url));
-        println!("Downloaded File: {}", downloaded_file);
         apod.set_wallpaper(downloaded_file);
     }
 }

@@ -1,0 +1,8 @@
+[package]
+
+name = "apod-rs"
+version = "0.0.1"
+authors = ["Prudhvi Krishna Surapaneni"]
+
+[dependencies.curl]
+git = "https://github.com/carllerche/curl-rust"

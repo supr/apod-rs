@@ -38,7 +38,7 @@ impl Apod {
         MemoryPage { code: resp.get_code(), body: resp.move_body() }
     }
 
-    fn get_image_url<'a>(&self, page: &MemoryPage) -> Option<&'a str> {
+    fn get_image_url<'a>(&self, page: &'a MemoryPage) -> Option<&'a str> {
         let rex = regex!("<a href=\"(image.*)\"");
         let body = str::from_utf8(page.body.as_slice()).unwrap();
         match rex.is_match(body) {

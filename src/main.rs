@@ -69,7 +69,7 @@ impl Apod {
         }
     }
 
-    fn download_page(&self, to: String, url: String) -> Option<String> {
+    fn download_page(&self, to: &str, url: String) -> Option<String> {
         let page = self.get_page(url.as_slice());
         let web_path = Path::new(url);
         let file_name = web_path.filename().unwrap();
@@ -102,8 +102,10 @@ fn main() {
                     format!("{}/Pictures", os::homedir().unwrap().display())
                 };
 
-                if let Some(downloaded_file) = apod.download_page(download_dir, format!("{}{}", APOD_BASE_URL, url)) {
+                if let Some(downloaded_file) = apod.download_page(download_dir.as_slice(), format!("{}{}", APOD_BASE_URL, url)) {
                     apod.set_wallpaper(downloaded_file);
+                } else {
+                    println!("Unable to download wallpaper to: {}", download_dir);
                 }
             }
         },

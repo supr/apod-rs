@@ -9,6 +9,18 @@ authors = ["Prudhvi Krishna Surapaneni"]
 name = "apod-rs"
 path = "src/main.rs"
 
+[profile.dev]
+opt-level = 0
+debug = true
+rpath = false
+lto = false
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = true
+
 [dependencies.curl]
 git = "https://github.com/carllerche/curl-rust"
 

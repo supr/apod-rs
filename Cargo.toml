@@ -4,5 +4,13 @@ name = "apod-rs"
 version = "0.0.1"
 authors = ["Prudhvi Krishna Surapaneni"]
 
+[[bin]]
+
+name = "apod-rs"
+path = "src/main.rs"
+
 [dependencies.curl]
 git = "https://github.com/carllerche/curl-rust"
+
+[dependencies.docopt_macros]
+git = "git://github.com/docopt/docopt.rs"

@@ -3,6 +3,12 @@
 extern crate regex_macros;
 extern crate regex;
 
+extern crate serialize;
+
+extern crate docopt;
+#[phase(plugin)]
+extern crate docopt_macros;
+
 extern crate curl;
 
 use curl::http;
@@ -13,6 +19,16 @@ use std::os;
 use std::cell::RefCell;
 
 static APOD_BASE_URL: &'static str = "http://apod.nasa.gov/apod/";
+
+docopt!(Args deriving Show, "
+Usage: apod-rs [options] [-d LOCATION]
+       apod-rs --help
+
+Options:
+       -d LOCATION           Download location.
+       -h, --help            Show this message.
+       -v, --verbose         Verbose.
+")
 
 struct MemoryPage
 {
@@ -27,8 +43,12 @@ struct Apod {
 
 impl Apod {
 
-    fn new() -> Apod {
-        Apod { handle: RefCell::new(http::handle().verbose()) }
+    fn new(verbose: bool) -> Apod {
+        if verbose {
+            Apod { handle: RefCell::new(http::handle().verbose()) }
+        } else {
+            Apod { handle: RefCell::new(http::handle()) }
+        }
     }
 
     fn get_page(&self, url: &str) -> MemoryPage {
@@ -69,13 +89,20 @@ impl Apod {
 }
 
 fn main() {
-    let apod = Apod::new();
+    let args: Args = Args::docopt().decode().unwrap_or_else(|e| e.exit());
+    let apod = Apod::new(args.flag_verbose);
     let page = apod.get_page(APOD_BASE_URL);
 
     match page.code {
         200...399 => {
             if let Some(url) = apod.get_image_url(&page) {
-                if let Some(downloaded_file) = apod.download_page(format!("{}/Pictures", os::homedir().unwrap().display()), format!("{}{}", APOD_BASE_URL, url)) {
+                let download_dir = if args.flag_d.len() > 0 {
+                    args.flag_d
+                } else {
+                    format!("{}/Pictures", os::homedir().unwrap().display())
+                };
+
+                if let Some(downloaded_file) = apod.download_page(download_dir, format!("{}{}", APOD_BASE_URL, url)) {
                     apod.set_wallpaper(downloaded_file);
                 }
             }

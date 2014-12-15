@@ -3,6 +3,7 @@ name = "apod-rs"
 version = "0.0.1"
 dependencies = [
  "curl 0.1.0 (git+https://github.com/carllerche/curl-rust)",
+ "docopt_macros 0.6.14 (git+git://github.com/docopt/docopt.rs)",
 ]
 
 [[package]]
@@ -22,6 +23,19 @@ dependencies = [
  "libz-sys 0.1.0 (git+https://github.com/alexcrichton/libz-sys)",
  "openssl-sys 0.2.3 (git+https://github.com/sfackler/rust-openssl)",
  "pkg-config 0.1.1 (git+https://github.com/alexcrichton/pkg-config-rs)",
+]
+
+[[package]]
+name = "docopt"
+version = "0.6.14"
+source = "git+git://github.com/docopt/docopt.rs#36ed322e4ad946a03264879500963e4470feefeb"
+
+[[package]]
+name = "docopt_macros"
+version = "0.6.14"
+source = "git+git://github.com/docopt/docopt.rs#36ed322e4ad946a03264879500963e4470feefeb"
+dependencies = [
+ "docopt 0.6.14 (git+git://github.com/docopt/docopt.rs)",
 ]
 
 [[package]]

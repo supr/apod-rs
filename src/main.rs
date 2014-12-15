@@ -106,9 +106,10 @@ fn main() {
                     apod.set_wallpaper(downloaded_file);
                 } else {
                     println!("Unable to download wallpaper to: {}", download_dir);
+                    os::set_exit_status(1);
                 }
             }
         },
-        _ => { println!("Unable to get APOD Page: {} Status Code: {}", APOD_BASE_URL, page.code); }
+        _ => { println!("Unable to get APOD Page: {} Status Code: {}", APOD_BASE_URL, page.code); os::set_exit_status(1);  }
     }
 }

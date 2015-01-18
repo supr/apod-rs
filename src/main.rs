@@ -1,13 +1,10 @@
-#![feature(phase)]
-#[phase(plugin)]
-extern crate regex_macros;
+
 extern crate regex;
 
 extern crate serialize;
 
 extern crate docopt;
-#[phase(plugin)]
-extern crate docopt_macros;
+#[plugin] #[no_link] extern crate docopt_macros;
 
 extern crate curl;
 
@@ -28,7 +25,7 @@ Options:
        -d DIR                Download location.
        -h, --help            Show this message.
        -v, --verbose         Verbose.
-")
+");
 
 struct MemoryPage
 {
@@ -59,7 +56,7 @@ impl Apod {
     }
 
     fn get_image_url<'a>(&self, page: &'a MemoryPage) -> Option<&'a str> {
-        let rex = regex!("<a href=\"(image.*)\"");
+        let rex = Regex::new("<a href=\"(image.*)\"").unwrap();
         let body = str::from_utf8(page.body.as_slice()).unwrap();
         match rex.is_match(body) {
             true => {

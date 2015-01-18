@@ -17,7 +17,7 @@ use std::cell::RefCell;
 
 static APOD_BASE_URL: &'static str = "http://apod.nasa.gov/apod/";
 
-docopt!(Args deriving Show, "
+docopt!(Args derive Show, "
 Usage: apod-rs [options] [-d DIR]
        apod-rs --help
 

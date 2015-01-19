@@ -1,17 +1,19 @@
-#![feature(phase)]
-#[phase(plugin)]
+#![feature(plugin)]
+
+#[plugin] #[no_link]
 extern crate regex_macros;
 extern crate regex;
 
-extern crate serialize;
+extern crate "rustc-serialize" as rustc_serialize;
 
-extern crate docopt;
-#[phase(plugin)]
+#[plugin] #[no_link]
 extern crate docopt_macros;
+extern crate docopt;
 
 extern crate curl;
 
 use curl::http;
+//use regex::Regex;
 use std::str;
 use std::string::String;
 use std::io::{Command, File};
@@ -20,7 +22,7 @@ use std::cell::RefCell;
 
 static APOD_BASE_URL: &'static str = "http://apod.nasa.gov/apod/";
 
-docopt!(Args deriving Show, "
+docopt!(Args derive Show, "
 Usage: apod-rs [options] [-d DIR]
        apod-rs --help
 
@@ -28,11 +30,11 @@ Options:
        -d DIR                Download location.
        -h, --help            Show this message.
        -v, --verbose         Verbose.
-")
+");
 
 struct MemoryPage
 {
-    code: uint,
+    code: u32,
     body: Vec<u8> 
 }
 
@@ -63,7 +65,7 @@ impl Apod {
         let body = str::from_utf8(page.body.as_slice()).unwrap();
         match rex.is_match(body) {
             true => {
-                Some(rex.captures(body).unwrap().at(1))
+                rex.captures(body).unwrap().at(1)
             },
             false => None
         }
@@ -75,7 +77,7 @@ impl Apod {
         let file_name = web_path.filename().unwrap();
 
         let mut file = File::create(&Path::new(format!("{}/{}", to, str::from_utf8(file_name).unwrap())));
-        match file.write(page.body.as_slice_()) {
+        match file.write(page.body.as_slice()) {
             Err(_) => None,
             Ok(_) => Some(format!("{}/{}", to, str::from_utf8(file_name).unwrap()))
         }
@@ -84,7 +86,7 @@ impl Apod {
     fn set_wallpaper(&self, file: String) {
         let file_path = format!("file://{}", file);
         let args = vec!["set", "org.gnome.desktop.background", "picture-uri", file_path.as_slice()];
-        let _ = Command::new("gsettings").args(args.as_slice_()).spawn();
+        let _ = Command::new("gsettings").args(args.as_slice()).spawn();
     }
 }
 

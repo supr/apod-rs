@@ -21,8 +21,12 @@ debug = false
 rpath = false
 lto = true
 
+[dependencies]
+rustc-serialize = "*"
+regex = "*"
+regex_macros = "*"
+docopt = "*"
+docopt_macros = "*"
+
 [dependencies.curl]
 git = "https://github.com/carllerche/curl-rust"
-
-[dependencies.docopt_macros]
-git = "git://github.com/docopt/docopt.rs"

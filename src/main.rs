@@ -62,7 +62,7 @@ impl Apod {
 
     fn get_image_url<'a>(&self, page: &'a MemoryPage) -> Option<&'a str> {
         let rex = regex!("<a href=\"(image.*)\"");
-        let body = str::from_utf8(page.body.as_slice()).unwrap();
+        let body = str::from_utf8((&*page.body)).unwrap();
         match rex.is_match(body) {
             true => {
                 rex.captures(body).unwrap().at(1)
@@ -72,12 +72,12 @@ impl Apod {
     }
 
     fn download_page(&self, to: &str, url: String) -> Option<String> {
-        let page = self.get_page(url.as_slice());
+        let page = self.get_page(&*url);
         let web_path = Path::new(url);
         let file_name = web_path.filename().unwrap();
 
         let mut file = File::create(&Path::new(format!("{}/{}", to, str::from_utf8(file_name).unwrap())));
-        match file.write(page.body.as_slice()) {
+        match file.write((&*page.body)) {
             Err(_) => None,
             Ok(_) => Some(format!("{}/{}", to, str::from_utf8(file_name).unwrap()))
         }
@@ -85,8 +85,8 @@ impl Apod {
 
     fn set_wallpaper(&self, file: String) {
         let file_path = format!("file://{}", file);
-        let args = vec!["set", "org.gnome.desktop.background", "picture-uri", file_path.as_slice()];
-        let _ = Command::new("gsettings").args(args.as_slice()).spawn();
+        let args = vec!["set", "org.gnome.desktop.background", "picture-uri", &*file_path];
+        let _ = Command::new("gsettings").args(&*args).spawn();
     }
 }
 
@@ -104,7 +104,7 @@ fn main() {
                     format!("{}/Pictures", os::homedir().unwrap().display())
                 };
 
-                if let Some(downloaded_file) = apod.download_page(download_dir.as_slice(), format!("{}{}", APOD_BASE_URL, url)) {
+                if let Some(downloaded_file) = apod.download_page(&*download_dir, format!("{}{}", APOD_BASE_URL, url)) {
                     apod.set_wallpaper(downloaded_file);
                 } else {
                     println!("Unable to download wallpaper to: {}", download_dir);

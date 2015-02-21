@@ -1,13 +1,11 @@
 #![feature(plugin)]
+#![plugin(regex_macros)]
+#![plugin(docopt_macros)]
 
-#[plugin] #[no_link]
-extern crate regex_macros;
 extern crate regex;
 
 extern crate "rustc-serialize" as rustc_serialize;
 
-#[plugin] #[no_link]
-extern crate docopt_macros;
 extern crate docopt;
 
 extern crate curl;
@@ -16,9 +14,11 @@ use curl::http;
 //use regex::Regex;
 use std::str;
 use std::string::String;
-use std::io::{Command, File};
+use std::process::Command;
+use std::fs::File;
 use std::os;
 use std::cell::RefCell;
+use std::io::Write;
 
 static APOD_BASE_URL: &'static str = "http://apod.nasa.gov/apod/";
 
@@ -76,10 +76,14 @@ impl Apod {
         let web_path = Path::new(url);
         let file_name = web_path.filename().unwrap();
 
-        let mut file = File::create(&Path::new(format!("{}/{}", to, str::from_utf8(file_name).unwrap())));
-        match file.write((&*page.body)) {
-            Err(_) => None,
-            Ok(_) => Some(format!("{}/{}", to, str::from_utf8(file_name).unwrap()))
+        let mut fileObj = File::create(&Path::new(format!("{}/{}", to, str::from_utf8(file_name).unwrap())));
+        if let Ok(mut file) = fileObj {
+                match file.write(&page.body) {
+                        Err(_) => None,
+                        Ok(_) => Some(format!("{}/{}", to, str::from_utf8(file_name).unwrap()))
+                }
+        } else {
+                None
         }
     }
 
